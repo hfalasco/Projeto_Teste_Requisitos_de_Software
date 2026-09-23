@@ -1,0 +1,10 @@
+{
+  "titulo": "Trabalho Parcial",
+  "subtitulo": "Serviço de Estoque e Serviço de Pedidos: duas aplicações integradas, com testes unitários e testes de integração",
+  "disciplina": "Teste e Requisitos de Software",
+  "professor": "Carlos Alves da Silva",
+  "integrantes": ["[Nome do(a) integrante 1]", "[Nome do(a) integrante 2]"],
+  "instituicao": "",
+  "local_e_data": "Setembro de 2026",
+  "repositorio": "https://github.com/hfalasco/Projeto_Teste_Requisitos_de_Software"
+}

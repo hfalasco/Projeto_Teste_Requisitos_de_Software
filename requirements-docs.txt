@@ -1,0 +1,6 @@
+# Dependências opcionais usadas apenas para gerar o relatório PDF e o vídeo
+-r requirements-dev.txt
+playwright==1.56.0
+imageio-ffmpeg==0.6.0
+Markdown==3.10.3
+pypdf==5.1.0

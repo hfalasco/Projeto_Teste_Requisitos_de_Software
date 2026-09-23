@@ -1,0 +1,23 @@
+name: Testes
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Instalar dependências
+        run: pip install -r requirements-dev.txt
+      - name: Testes unitários com cobertura (mínimo 90%)
+        run: pytest tests/unit --cov --cov-report=term-missing --cov-fail-under=90
+      - name: Testes de integração
+        run: pytest tests/integration -v

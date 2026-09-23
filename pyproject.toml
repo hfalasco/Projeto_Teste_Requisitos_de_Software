@@ -1,0 +1,25 @@
+[project]
+name = "projeto-teste-requisitos-de-software"
+version = "1.0.0"
+description = "Trabalho Parcial: Serviço de Estoque + Serviço de Pedidos com testes unitários e de integração"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "integracao: testes de integração que sobem as duas aplicações como processos separados",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["estoque_service", "pedidos_service"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 90
+
+[tool.coverage.html]
+directory = "htmlcov"
+title = "Cobertura dos testes unitários"

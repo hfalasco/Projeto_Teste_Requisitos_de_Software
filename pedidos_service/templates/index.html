@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Serviço de Pedidos</title>
+  <style>
+    :root {
+      --bg: #f4f5fa; --card: #ffffff; --text: #1e2230; --muted: #5d6477;
+      --line: #dfe2ec; --accent: #4338ca; --accent-soft: #eceafd;
+      --ok: #15803d; --ok-soft: #e7f6ec; --err: #b91c1c; --err-soft: #fdecec;
+      --neutral-soft: #eef0f4;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; }
+    header { background: var(--accent); color: #fff; padding: 14px 20px;
+             display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    header h1 { font-size: 19px; margin: 0; font-weight: 600; }
+    .tag { background: rgba(255,255,255,.18); border-radius: 999px; padding: 2px 10px; font-size: 12px; }
+    .status { margin-left: auto; font-size: 12px; display: flex; align-items: center; gap: 6px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #9ca3af; }
+    .dot.on { background: #4ade80; } .dot.off { background: #f87171; }
+    main { padding: 16px; display: grid; gap: 14px; max-width: 980px; margin: 0 auto; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+    .card h2 { font-size: 15px; margin: 0 0 10px; }
+    .linha { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; align-items: end; }
+    label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+    input, select { font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px;
+                    background: #fff; color: var(--text); min-width: 0; }
+    input:focus, select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+    button { font: inherit; font-weight: 600; background: var(--accent); color: #fff; border: 0;
+             border-radius: 7px; padding: 8px 12px; cursor: pointer; white-space: nowrap; }
+    button.sec { background: var(--accent-soft); color: var(--accent); }
+    button.perigo { background: var(--err-soft); color: var(--err); padding: 4px 10px; font-size: 12px; }
+    button:hover { filter: brightness(1.05); }
+    .carrinho { margin: 10px 0; display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; }
+    .chip { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+    .chip button { background: none; color: inherit; padding: 0 0 0 6px; }
+    .acoes { display: flex; gap: 8px; justify-content: flex-end; }
+    .msg { border-radius: 8px; padding: 9px 12px; font-size: 13px; display: none; }
+    .msg.ok { display: block; background: var(--ok-soft); color: var(--ok); }
+    .msg.erro { display: block; background: var(--err-soft); color: var(--err); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: 12px; color: var(--muted); font-weight: 600; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .itens { font-size: 12px; color: var(--muted); }
+    .badge { border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; }
+    .badge.CONFIRMADO { background: var(--ok-soft); color: var(--ok); }
+    .badge.CANCELADO { background: var(--neutral-soft); color: var(--muted); }
+    .vazio { color: var(--muted); text-align: center; padding: 18px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Serviço de Pedidos</h1>
+    <span class="tag">Aplicação 2 · consome o Estoque via HTTP</span>
+    <span class="status"><span id="saude-estoque" class="dot"></span><span id="saude-txt">Estoque: verificando…</span></span>
+  </header>
+  <main>
+    <div id="mensagem" class="msg" role="status"></div>
+
+    <section class="card">
+      <h2>Novo pedido</h2>
+      <div class="linha">
+        <label style="grid-column: span 3">Cliente <input id="cliente" placeholder="Nome do cliente"></label>
+      </div>
+      <div class="linha" style="margin-top:10px">
+        <label style="grid-column: span 2">Produto (catálogo do Estoque) <select id="produto"></select></label>
+        <label>Quantidade <input id="quantidade" type="number" min="1" value="1"></label>
+        <button id="btn-adicionar" class="sec" type="button">Adicionar item</button>
+      </div>
+      <div id="carrinho" class="carrinho"></div>
+      <div class="acoes"><button id="btn-finalizar" type="button">Finalizar pedido</button></div>
+    </section>
+
+    <section class="card">
+      <h2>Pedidos</h2>
+      <table>
+        <thead><tr><th>#</th><th>Cliente / itens</th><th class="num">Subtotal</th><th class="num">Desconto</th>
+          <th class="num">Total</th><th>Status</th><th></th></tr></thead>
+        <tbody id="tabela-pedidos"><tr><td colspan="7" class="vazio">Nenhum pedido registrado.</td></tr></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    const moeda = v => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    let carrinho = [];
+    let catalogo = [];
+
+    function escapar(t) { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+
+    function mostrar(texto, tipo) {
+      const el = document.getElementById("mensagem");
+      el.textContent = texto;
+      el.className = "msg " + tipo;
+    }
+
+    async function api(caminho, opcoes = {}) {
+      const resp = await fetch(caminho, { headers: { "Content-Type": "application/json" }, ...opcoes });
+      const corpo = await resp.json();
+      if (!resp.ok) throw new Error(`${corpo.erro} (HTTP ${resp.status})`);
+      return corpo;
+    }
+
+    function desenharCarrinho() {
+      document.getElementById("carrinho").innerHTML = carrinho.length
+        ? carrinho.map((i, n) => `<span class="chip">${escapar(i.sku)} × ${i.quantidade}<button data-n="${n}" title="remover">✕</button></span>`).join("")
+        : '<span class="itens">Nenhum item adicionado.</span>';
+    }
+
+    async function carregarCatalogo() {
+      const txt = document.getElementById("saude-txt"), dot = document.getElementById("saude-estoque");
+      try {
+        catalogo = await api("/api/catalogo");
+        dot.className = "dot on"; txt.textContent = "Estoque: online";
+        const select = document.getElementById("produto");
+        const atual = select.value;
+        select.innerHTML = catalogo.map(p =>
+          `<option value="${escapar(p.sku)}">${escapar(p.sku)} — ${escapar(p.nome)} · ${moeda(p.preco)} · saldo ${p.quantidade}</option>`).join("");
+        if (atual) select.value = atual;
+      } catch (e) {
+        dot.className = "dot off"; txt.textContent = "Estoque: indisponível";
+      }
+    }
+
+    async function carregarPedidos() {
+      const pedidos = await api("/api/pedidos");
+      const corpo = document.getElementById("tabela-pedidos");
+      corpo.innerHTML = pedidos.length ? pedidos.map(p => `
+        <tr data-id="${p.id}">
+          <td><strong>${p.id}</strong></td>
+          <td>${escapar(p.cliente)}<div class="itens">${p.itens.map(i => `<span title="${moeda(i.preco_unitario)} cada">${escapar(i.sku)} × ${i.quantidade}</span>`).join(" · ")}</div></td>
+          <td class="num">${moeda(p.subtotal)}</td>
+          <td class="num">${p.percentual_desconto ? `−${moeda(p.desconto)}<div class="itens">${p.percentual_desconto}%</div>` : "—"}</td>
+          <td class="num"><strong>${moeda(p.total)}</strong></td>
+          <td><span class="badge ${p.status}">${p.status}</span></td>
+          <td>${p.status === "CONFIRMADO" ? `<button class="perigo" data-cancelar="${p.id}">Cancelar</button>` : ""}</td>
+        </tr>`).join("") : '<tr><td colspan="7" class="vazio">Nenhum pedido registrado.</td></tr>';
+    }
+
+    async function atualizar() { await carregarCatalogo(); try { await carregarPedidos(); } catch (e) {} }
+
+    document.getElementById("btn-adicionar").addEventListener("click", () => {
+      const sku = document.getElementById("produto").value;
+      const quantidade = parseInt(document.getElementById("quantidade").value || "0", 10);
+      if (!sku) { mostrar("Nenhum produto disponível no catálogo.", "erro"); return; }
+      carrinho.push({ sku, quantidade });
+      desenharCarrinho();
+    });
+
+    document.getElementById("carrinho").addEventListener("click", ev => {
+      const n = ev.target.dataset.n;
+      if (n !== undefined) { carrinho.splice(Number(n), 1); desenharCarrinho(); }
+    });
+
+    document.getElementById("btn-finalizar").addEventListener("click", async () => {
+      const dados = { cliente: document.getElementById("cliente").value, itens: carrinho };
+      try {
+        const p = await api("/api/pedidos", { method: "POST", body: JSON.stringify(dados) });
+        const desconto = p.percentual_desconto ? ` com ${p.percentual_desconto}% de desconto` : "";
+        mostrar(`Pedido #${p.id} confirmado para ${p.cliente}: total ${moeda(p.total)}${desconto}.`, "ok");
+        carrinho = []; desenharCarrinho();
+        await atualizar();
+      } catch (e) { mostrar("Pedido recusado: " + e.message, "erro"); }
+    });
+
+    document.getElementById("tabela-pedidos").addEventListener("click", async ev => {
+      const id = ev.target.dataset.cancelar;
+      if (!id) return;
+      try {
+        await api(`/api/pedidos/${id}/cancelamento`, { method: "POST" });
+        mostrar(`Pedido #${id} cancelado; itens devolvidos ao estoque.`, "ok");
+        await atualizar();
+      } catch (e) { mostrar(e.message, "erro"); }
+    });
+
+    desenharCarrinho();
+    atualizar();
+    setInterval(atualizar, 2000);
+  </script>
+</body>
+</html>

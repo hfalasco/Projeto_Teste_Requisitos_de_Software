@@ -1,0 +1,284 @@
+### 1. Saúde do Serviço de Estoque
+>>> GET http://127.0.0.1:5001/health
+<<< 200 OK
+{
+  "servico": "estoque",
+  "status": "ok"
+}
+
+### 2. Cadastro do produto TEC-001 no Estoque
+>>> POST http://127.0.0.1:5001/api/produtos
+{"sku": "TEC-001", "nome": "Teclado mecânico", "preco": "250.00", "quantidade": 10, "estoque_minimo": 3}
+<<< 201 CREATED
+{
+  "sku": "TEC-001",
+  "nome": "Teclado mecânico",
+  "preco": "250.00",
+  "quantidade": 10,
+  "estoque_minimo": 3,
+  "precisa_reposicao": false
+}
+
+### 3. Cadastro do produto MOU-001 no Estoque
+>>> POST http://127.0.0.1:5001/api/produtos
+{"sku": "MOU-001", "nome": "Mouse sem fio", "preco": "120.00", "quantidade": 5, "estoque_minimo": 2}
+<<< 201 CREATED
+{
+  "sku": "MOU-001",
+  "nome": "Mouse sem fio",
+  "preco": "120.00",
+  "quantidade": 5,
+  "estoque_minimo": 2,
+  "precisa_reposicao": false
+}
+
+### 4. Cadastro do produto MON-001 no Estoque
+>>> POST http://127.0.0.1:5001/api/produtos
+{"sku": "MON-001", "nome": "Monitor 27 polegadas", "preco": "1200.00", "quantidade": 2, "estoque_minimo": 1}
+<<< 201 CREATED
+{
+  "sku": "MON-001",
+  "nome": "Monitor 27 polegadas",
+  "preco": "1200.00",
+  "quantidade": 2,
+  "estoque_minimo": 1,
+  "precisa_reposicao": false
+}
+
+### 5. Pedidos verifica a dependência (Estoque online)
+>>> GET http://127.0.0.1:5002/health
+<<< 200 OK
+{
+  "servico": "pedidos",
+  "status": "ok",
+  "dependencias": {
+    "estoque": "ok"
+  }
+}
+
+### 6. Catálogo exibido pelo Pedidos (vem do Estoque)
+>>> GET http://127.0.0.1:5002/api/catalogo
+<<< 200 OK
+[
+  {
+    "sku": "MON-001",
+    "nome": "Monitor 27 polegadas",
+    "preco": "1200.00",
+    "quantidade": 2,
+    "estoque_minimo": 1,
+    "precisa_reposicao": false
+  },
+  {
+    "sku": "MOU-001",
+    "nome": "Mouse sem fio",
+    "preco": "120.00",
+    "quantidade": 5,
+    "estoque_minimo": 2,
+    "precisa_reposicao": false
+  },
+  {
+    "sku": "TEC-001",
+    "nome": "Teclado mecânico",
+    "preco": "250.00",
+    "quantidade": 10,
+    "estoque_minimo": 3,
+    "precisa_reposicao": false
+  }
+]
+
+### 7. Pedido com subtotal R$ 620,00 → desconto de 5%
+>>> POST http://127.0.0.1:5002/api/pedidos
+{"cliente": "Maria Souza", "itens": [{"sku": "TEC-001", "quantidade": 2}, {"sku": "MOU-001", "quantidade": 1}]}
+<<< 201 CREATED
+{
+  "id": 1,
+  "cliente": "Maria Souza",
+  "status": "CONFIRMADO",
+  "itens": [
+    {
+      "sku": "TEC-001",
+      "nome": "Teclado mecânico",
+      "quantidade": 2,
+      "preco_unitario": "250.00",
+      "total": "500.00"
+    },
+    {
+      "sku": "MOU-001",
+      "nome": "Mouse sem fio",
+      "quantidade": 1,
+      "preco_unitario": "120.00",
+      "total": "120.00"
+    }
+  ],
+  "subtotal": "620.00",
+  "percentual_desconto": 5,
+  "desconto": "31.00",
+  "total": "589.00",
+  "criado_em": "2026-09-23T12:52:39.142732+00:00",
+  "cancelado_em": null
+}
+
+### 8. Saldos no Estoque após o pedido (baixa automática)
+>>> GET http://127.0.0.1:5001/api/produtos
+<<< 200 OK
+[
+  {
+    "sku": "MON-001",
+    "nome": "Monitor 27 polegadas",
+    "preco": "1200.00",
+    "quantidade": 2,
+    "estoque_minimo": 1,
+    "precisa_reposicao": false
+  },
+  {
+    "sku": "MOU-001",
+    "nome": "Mouse sem fio",
+    "preco": "120.00",
+    "quantidade": 4,
+    "estoque_minimo": 2,
+    "precisa_reposicao": false
+  },
+  {
+    "sku": "TEC-001",
+    "nome": "Teclado mecânico",
+    "preco": "250.00",
+    "quantidade": 8,
+    "estoque_minimo": 3,
+    "precisa_reposicao": false
+  }
+]
+
+### 9. Pedido acima do saldo → recusado (409)
+>>> POST http://127.0.0.1:5002/api/pedidos
+{"cliente": "Carlos Lima", "itens": [{"sku": "MON-001", "quantidade": 5}]}
+<<< 409 CONFLICT
+{
+  "erro": "Estoque insuficiente para 'MON-001': disponível 2, solicitado 5.",
+  "codigo": "ESTOQUE_INSUFICIENTE"
+}
+
+### 10. Pedido com produto inexistente → 422
+>>> POST http://127.0.0.1:5002/api/pedidos
+{"cliente": "Carlos Lima", "itens": [{"sku": "XYZ-999", "quantidade": 1}]}
+<<< 422 UNPROCESSABLE ENTITY
+{
+  "erro": "Produto 'XYZ-999' não encontrado.",
+  "codigo": "PRODUTO_INEXISTENTE"
+}
+
+### 11. Pedido com quantidade acima do limite (101) → 400
+>>> POST http://127.0.0.1:5002/api/pedidos
+{"cliente": "Carlos Lima", "itens": [{"sku": "TEC-001", "quantidade": 101}]}
+<<< 400 BAD REQUEST
+{
+  "erro": "A quantidade de cada item deve estar entre 1 e 100.",
+  "codigo": "DADOS_INVALIDOS"
+}
+
+### 12. Pedido de R$ 1.200,00 → desconto de 10%
+>>> POST http://127.0.0.1:5002/api/pedidos
+{"cliente": "Carlos Lima", "itens": [{"sku": "MON-001", "quantidade": 1}]}
+<<< 201 CREATED
+{
+  "id": 2,
+  "cliente": "Carlos Lima",
+  "status": "CONFIRMADO",
+  "itens": [
+    {
+      "sku": "MON-001",
+      "nome": "Monitor 27 polegadas",
+      "quantidade": 1,
+      "preco_unitario": "1200.00",
+      "total": "1200.00"
+    }
+  ],
+  "subtotal": "1200.00",
+  "percentual_desconto": 10,
+  "desconto": "120.00",
+  "total": "1080.00",
+  "criado_em": "2026-09-23T12:52:39.156990+00:00",
+  "cancelado_em": null
+}
+
+### 13. Produtos que precisam de reposição (saldo ≤ mínimo)
+>>> GET http://127.0.0.1:5001/api/produtos/reposicao
+<<< 200 OK
+[
+  {
+    "sku": "MON-001",
+    "nome": "Monitor 27 polegadas",
+    "preco": "1200.00",
+    "quantidade": 1,
+    "estoque_minimo": 1,
+    "precisa_reposicao": true
+  }
+]
+
+### 14. Cancelamento do pedido 1
+>>> POST http://127.0.0.1:5002/api/pedidos/1/cancelamento
+<<< 200 OK
+{
+  "id": 1,
+  "cliente": "Maria Souza",
+  "status": "CANCELADO",
+  "itens": [
+    {
+      "sku": "TEC-001",
+      "nome": "Teclado mecânico",
+      "quantidade": 2,
+      "preco_unitario": "250.00",
+      "total": "500.00"
+    },
+    {
+      "sku": "MOU-001",
+      "nome": "Mouse sem fio",
+      "quantidade": 1,
+      "preco_unitario": "120.00",
+      "total": "120.00"
+    }
+  ],
+  "subtotal": "620.00",
+  "percentual_desconto": 5,
+  "desconto": "31.00",
+  "total": "589.00",
+  "criado_em": "2026-09-23T12:52:39.142732+00:00",
+  "cancelado_em": "2026-09-23T12:52:39.162115+00:00"
+}
+
+### 15. Segundo cancelamento do pedido 1 → 409
+>>> POST http://127.0.0.1:5002/api/pedidos/1/cancelamento
+<<< 409 CONFLICT
+{
+  "erro": "O pedido 1 não pode ser cancelado (status CANCELADO).",
+  "codigo": "TRANSICAO_INVALIDA"
+}
+
+### 16. Saldos no Estoque após o cancelamento (itens devolvidos)
+>>> GET http://127.0.0.1:5001/api/produtos
+<<< 200 OK
+[
+  {
+    "sku": "MON-001",
+    "nome": "Monitor 27 polegadas",
+    "preco": "1200.00",
+    "quantidade": 1,
+    "estoque_minimo": 1,
+    "precisa_reposicao": true
+  },
+  {
+    "sku": "MOU-001",
+    "nome": "Mouse sem fio",
+    "preco": "120.00",
+    "quantidade": 5,
+    "estoque_minimo": 2,
+    "precisa_reposicao": false
+  },
+  {
+    "sku": "TEC-001",
+    "nome": "Teclado mecânico",
+    "preco": "250.00",
+    "quantidade": 10,
+    "estoque_minimo": 3,
+    "precisa_reposicao": false
+  }
+]

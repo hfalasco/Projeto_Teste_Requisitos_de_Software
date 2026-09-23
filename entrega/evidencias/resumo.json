@@ -1,0 +1,36 @@
+{
+  "executado_em": "23/09/2026 às 12:52",
+  "ambiente": {
+    "python": "3.11.15",
+    "sistema": "Linux 6.18.44-fc-v37"
+  },
+  "unitarios": {
+    "total": 229,
+    "aprovados": 229,
+    "falhas": 0,
+    "tempo": 1.398
+  },
+  "integracao": {
+    "total": 19,
+    "aprovados": 19,
+    "falhas": 0,
+    "tempo": 2.777
+  },
+  "cobertura": {
+    "total": "100",
+    "linhas": "100",
+    "linhas_cobertas": 535,
+    "linhas_total": 535,
+    "ramos": "100",
+    "ramos_cobertos": 90,
+    "ramos_total": 90
+  },
+  "documentacao": {
+    "funcoes": 164,
+    "casos": 248
+  },
+  "requisitos": {
+    "total": 28,
+    "cobertos": 28
+  }
+}
