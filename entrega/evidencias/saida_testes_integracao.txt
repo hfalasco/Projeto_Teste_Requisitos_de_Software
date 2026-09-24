@@ -4,28 +4,30 @@ metadata: {'Python': '3.11.15', 'Platform': 'Linux-6.18.44-fc-v37-x86_64-with-gl
 rootdir: /home/user/Projeto_Teste_Requisitos_de_Software
 configfile: pyproject.toml
 plugins: metadata-3.1.1, html-4.1.1, cov-5.0.0
-collecting ... collected 19 items
+collecting ... collected 21 items
 
-tests/integration/test_integracao_estoque_pedidos.py::TestComunicacaoEntreServicos::test_pedidos_reconhece_estoque_online PASSED [  5%]
-tests/integration/test_integracao_estoque_pedidos.py::TestComunicacaoEntreServicos::test_catalogo_do_pedidos_reflete_produtos_do_estoque PASSED [ 10%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_pedido_confirmado_baixa_saldo_no_estoque PASSED [ 15%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_preco_do_pedido_vem_do_estoque PASSED [ 21%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_desconto_progressivo_com_precos_reais_do_estoque[499.99-1-0-499.99] PASSED [ 26%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_desconto_progressivo_com_precos_reais_do_estoque[250.00-2-5-475.00] PASSED [ 31%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_desconto_progressivo_com_precos_reais_do_estoque[1000.00-1-10-900.00] PASSED [ 36%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_estoque_insuficiente_recusa_pedido_sem_baixa_parcial PASSED [ 42%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_produto_inexistente_retorna_422_sem_alterar_estoque PASSED [ 47%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_pedido_invalido_nao_altera_estoque PASSED [ 52%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_entrada_no_estoque_libera_pedido_antes_recusado PASSED [ 57%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_pedido_que_atinge_minimo_gera_alerta_de_reposicao PASSED [ 63%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCancelamento::test_cancelamento_devolve_itens_ao_estoque PASSED [ 68%]
-tests/integration/test_integracao_estoque_pedidos.py::TestCancelamento::test_cancelamento_duplicado_nao_devolve_em_dobro PASSED [ 73%]
-tests/integration/test_integracao_estoque_pedidos.py::TestConcorrencia::test_pedidos_simultaneos_nao_vendem_alem_do_saldo PASSED [ 78%]
-tests/integration/test_integracao_estoque_pedidos.py::TestConcorrencia::test_cancelamentos_simultaneos_devolvem_uma_unica_vez PASSED [ 84%]
-tests/integration/test_integracao_estoque_pedidos.py::TestFalhasDeComunicacao::test_estoque_fora_do_ar_retorna_503 PASSED [ 89%]
-tests/integration/test_integracao_estoque_pedidos.py::TestFalhasDeComunicacao::test_estoque_que_nao_responde_gera_timeout_e_503 PASSED [ 94%]
-tests/integration/test_integracao_estoque_pedidos.py::TestFalhasDeComunicacao::test_queda_do_estoque_mantem_pedido_confirmado PASSED [100%]
+tests/integration/test_integracao_estoque_pedidos.py::TestComunicacaoEntreServicos::test_pedidos_reconhece_estoque_online PASSED [  4%]
+tests/integration/test_integracao_estoque_pedidos.py::TestComunicacaoEntreServicos::test_catalogo_do_pedidos_reflete_produtos_do_estoque PASSED [  9%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_pedido_confirmado_baixa_saldo_no_estoque PASSED [ 14%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_preco_do_pedido_vem_do_estoque PASSED [ 19%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_desconto_progressivo_com_precos_reais_do_estoque[499.99-1-0-499.99] PASSED [ 23%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_desconto_progressivo_com_precos_reais_do_estoque[250.00-2-5-475.00] PASSED [ 28%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_desconto_progressivo_com_precos_reais_do_estoque[1000.00-1-10-900.00] PASSED [ 33%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_estoque_insuficiente_recusa_pedido_sem_baixa_parcial PASSED [ 38%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_produto_inexistente_retorna_422_sem_alterar_estoque PASSED [ 42%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_pedido_invalido_nao_altera_estoque PASSED [ 47%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_entrada_no_estoque_libera_pedido_antes_recusado PASSED [ 52%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCriacaoDePedido::test_pedido_que_atinge_minimo_gera_alerta_de_reposicao PASSED [ 57%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCancelamento::test_cancelamento_devolve_itens_ao_estoque PASSED [ 61%]
+tests/integration/test_integracao_estoque_pedidos.py::TestCancelamento::test_cancelamento_duplicado_nao_devolve_em_dobro PASSED [ 66%]
+tests/integration/test_integracao_estoque_pedidos.py::TestConcorrencia::test_pedidos_simultaneos_nao_vendem_alem_do_saldo PASSED [ 71%]
+tests/integration/test_integracao_estoque_pedidos.py::TestConcorrencia::test_cancelamentos_simultaneos_devolvem_uma_unica_vez PASSED [ 76%]
+tests/integration/test_integracao_estoque_pedidos.py::TestFalhasDeComunicacao::test_estoque_fora_do_ar_retorna_503 PASSED [ 80%]
+tests/integration/test_integracao_estoque_pedidos.py::TestFalhasDeComunicacao::test_estoque_que_nao_responde_gera_timeout_e_503 PASSED [ 85%]
+tests/integration/test_integracao_estoque_pedidos.py::TestFalhasDeComunicacao::test_queda_do_estoque_mantem_pedido_confirmado PASSED [ 90%]
+tests/integration/test_integracao_estoque_pedidos.py::TestInterfaceDeLinhaDeComando::test_fluxo_completo_pelas_duas_clis PASSED [ 95%]
+tests/integration/test_integracao_estoque_pedidos.py::TestInterfaceDeLinhaDeComando::test_cli_de_pedidos_mostra_recusa_do_estoque PASSED [100%]
 
 - generated xml file: /home/user/Projeto_Teste_Requisitos_de_Software/entrega/evidencias/junit-integracao.xml -
 - Generated html report: file:///home/user/Projeto_Teste_Requisitos_de_Software/entrega/evidencias/relatorio-testes-integracao.html -
-============================================= 19 passed in 2.77s =============================================
+============================================= 21 passed in 4.25s =============================================

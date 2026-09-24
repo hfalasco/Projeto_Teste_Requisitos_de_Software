@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, request
 
 from pedidos_service.cliente_estoque import TIMEOUT_PADRAO, ClienteEstoque
 from pedidos_service.dominio import (
@@ -59,10 +59,6 @@ def criar_app(servico: ServicoPedidos | None = None) -> Flask:
     @app.errorhandler(405)
     def metodo_nao_permitido(_erro):
         return jsonify({"erro": "Método não permitido.", "codigo": "METODO_NAO_PERMITIDO"}), 405
-
-    @app.get("/")
-    def pagina_inicial():
-        return render_template("index.html")
 
     @app.get("/health")
     def saude():

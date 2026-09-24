@@ -4,12 +4,17 @@ Cada teste exercita o sistema pela API pública dos serviços, que rodam em
 processos separados e se comunicam por HTTP real (ver conftest.py).
 """
 
+import os
 import socket
+import subprocess
+import sys
 import threading
 import time
 
 import pytest
 import requests
+
+from tests.integration.conftest import RAIZ_DO_PROJETO
 
 pytestmark = pytest.mark.integracao
 
@@ -265,3 +270,44 @@ class TestFalhasDeComunicacao:
         assert resposta.status_code == 503
         pedido = requests.get(f"{pedidos.url}/api/pedidos/{id_pedido}", timeout=TIMEOUT).json()
         assert pedido["status"] == "CONFIRMADO"
+
+
+def usar_cli(modulo: str, variavel_url: str, url: str, *linhas: str) -> str:
+    """Executa a CLI como um usuário faria no terminal, digitando as linhas informadas."""
+    processo = subprocess.run([sys.executable, "-m", modulo], input="\n".join(linhas) + "\n", text=True,
+                              capture_output=True, timeout=30, cwd=RAIZ_DO_PROJETO,
+                              env={**os.environ, variavel_url: url, "PYTHONIOENCODING": "utf-8"},
+                              encoding="utf-8")
+    assert processo.returncode == 0, processo.stderr
+    return processo.stdout
+
+
+class TestInterfaceDeLinhaDeComando:
+    def test_fluxo_completo_pelas_duas_clis(self, estoque, pedidos, novo_sku):
+        """Objetivo: Verificar o uso real pelo terminal: cadastro na CLI do Estoque, pedido na CLI do Pedidos e saldo atualizado visto novamente na CLI do Estoque.
+        Técnica: Teste de integração ponta a ponta (CLI → API → outra API)
+        Requisitos: RF-E07, RF-P06, RF-P02, RF-E04
+        """
+        sku = novo_sku("CLI")
+        saida = usar_cli("estoque_service.cli", "ESTOQUE_URL", estoque.url,
+                         "2", sku, "Teclado CLI", "250,00", "10", "3", "0")
+        assert f"OK: produto {sku} cadastrado com saldo 10." in saida
+
+        saida = usar_cli("pedidos_service.cli", "PEDIDOS_URL", pedidos.url,
+                         "2", "Maria Souza", sku, "2", "", "0")
+        assert "OK: pedido confirmado!" in saida
+        assert "Subtotal R$ 500,00 | Desconto 5% (-R$ 25,00) | TOTAL R$ 475,00" in saida
+
+        saida = usar_cli("estoque_service.cli", "ESTOQUE_URL", estoque.url, "1", "0")
+        linha = next(linha for linha in saida.splitlines() if linha.startswith(sku))
+        assert linha.split()[-3:] == ["8", "3", "OK"]
+
+    def test_cli_de_pedidos_mostra_recusa_do_estoque(self, estoque, pedidos, cadastrar_produto):
+        """Objetivo: Verificar que a recusa por falta de saldo, gerada no Estoque, chega ao usuário da CLI de Pedidos como HTTP 409.
+        Técnica: Teste de integração com valor limite (saldo+1) propagado entre serviços
+        Requisitos: RF-P06, RN-P04
+        """
+        sku = cadastrar_produto(quantidade=2)
+        saida = usar_cli("pedidos_service.cli", "PEDIDOS_URL", pedidos.url, "2", "Carlos Lima", sku, "3", "", "0")
+        assert f"ERRO (HTTP 409): Estoque insuficiente para '{sku}': disponível 2, solicitado 3." in saida
+        assert saldo(estoque, sku) == 2

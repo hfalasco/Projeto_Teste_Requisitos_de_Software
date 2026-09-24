@@ -114,7 +114,7 @@
   "percentual_desconto": 5,
   "desconto": "31.00",
   "total": "589.00",
-  "criado_em": "2026-09-23T12:52:39.142732+00:00",
+  "criado_em": "2026-09-24T11:45:13.043942+00:00",
   "cancelado_em": null
 }
 
@@ -196,7 +196,7 @@
   "percentual_desconto": 10,
   "desconto": "120.00",
   "total": "1080.00",
-  "criado_em": "2026-09-23T12:52:39.156990+00:00",
+  "criado_em": "2026-09-24T11:45:13.063713+00:00",
   "cancelado_em": null
 }
 
@@ -241,8 +241,8 @@
   "percentual_desconto": 5,
   "desconto": "31.00",
   "total": "589.00",
-  "criado_em": "2026-09-23T12:52:39.142732+00:00",
-  "cancelado_em": "2026-09-23T12:52:39.162115+00:00"
+  "criado_em": "2026-09-24T11:45:13.043942+00:00",
+  "cancelado_em": "2026-09-24T11:45:13.070846+00:00"
 }
 
 ### 15. Segundo cancelamento do pedido 1 → 409

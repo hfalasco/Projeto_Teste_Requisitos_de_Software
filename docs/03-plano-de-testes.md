@@ -11,9 +11,9 @@ Demonstrar, com evidências automatizadas, que as duas aplicações atendem aos 
 
 | Nível | Pasta | O que é testado | Isolamento | Ferramentas |
 |---|---|---|---|---|
-| Unitário | `tests/unit/estoque/` | Domínio, repositório, serviço e rotas HTTP do Estoque | Sem rede: Flask *test client* e objetos em memória | pytest, pytest-cov |
-| Unitário | `tests/unit/pedidos/` | Domínio, repositório, serviço, cliente HTTP e rotas do Pedidos | O Serviço de Estoque é substituído por **dublês de teste** | pytest, unittest.mock, pytest-cov |
-| Integração | `tests/integration/` | As duas aplicações rodando juntas | Nenhum dublê: cada aplicação roda em **seu próprio processo**, em portas TCP reais | pytest, subprocess, requests |
+| Unitário | `tests/unit/estoque/` | Domínio, repositório, serviço, rotas HTTP e CLI do Estoque | Sem rede: Flask *test client* e objetos em memória | pytest, pytest-cov |
+| Unitário | `tests/unit/pedidos/` | Domínio, repositório, serviço, cliente HTTP, rotas e CLI do Pedidos | O Serviço de Estoque é substituído por **dublês de teste** | pytest, unittest.mock, pytest-cov |
+| Integração | `tests/integration/` | As duas aplicações rodando juntas (inclusive usadas pelas CLIs, como um usuário no terminal) | Nenhum dublê: cada aplicação roda em **seu próprio processo**, em portas TCP reais | pytest, subprocess, requests |
 
 ### Por que os testes de integração usam processos separados
 
@@ -27,7 +27,7 @@ A fixture `ProcessoServico` (`tests/integration/conftest.py`) executa `python -m
 | **Análise de valor limite** | SKU com 2/3/20/21 caracteres. Preço 0,00/0,01/1.000.000,00/1.000.000,01. Quantidade 0/1/100/101 e 0/1/10.000/10.001. Desconto em 499,99/500,00/999,99/1.000,00. Estoque mínimo (saldo = mínimo ± 1). Capacidade máxima + 1. Lote com 50/51 itens e pedido com 20/21 produtos. |
 | **Tabela de decisão** | Tradução de cada código de erro do estoque (409, 404, 400, 4xx desconhecido, 5xx) na exceção e no status HTTP do Pedidos. |
 | **Transição de estados** | Pedido `CONFIRMADO → CANCELADO` (válida) e `CANCELADO → CANCELADO` (inválida, 409). |
-| **Dublês de teste** | *Stub* (`RespostaFalsa`), *Mock* (`unittest.mock.Mock` com verificação de chamadas), *Fake* e *Spy* (`EstoqueFalso`, estoque em memória que registra as chamadas). |
+| **Dublês de teste** | *Stub* (`RespostaFalsa`), *Mock* (`unittest.mock.Mock` com verificação de chamadas), *Fake* e *Spy* (`EstoqueFalso`, estoque em memória que registra as chamadas). Nas CLIs, `SessaoFlask` (fake de `requests.Session` que encaminha as chamadas ao app em memória) e `roteiro` (simula o usuário digitando). |
 | **Injeção de falhas** | Timeout, conexão recusada, erro 5xx, JSON inválido e contrato violado (unitário). Porta fechada, servidor mudo e queda do processo do Estoque (integração). |
 | **Teste de concorrência** | 30 baixas simultâneas (unitário) e 25 pedidos e 10 cancelamentos simultâneos via HTTP (integração), com `threading.Barrier`. |
 | **Injeção de dependência** | Relógio, repositório e cliente de estoque injetados no `ServicoPedidos`. Serviço injetado no `criar_app()`. |

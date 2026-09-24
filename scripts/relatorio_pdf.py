@@ -104,7 +104,7 @@ DIAGRAMA_ARQUITETURA = """
     <path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
   <rect x="10" y="95" width="120" height="60" rx="8" fill="#f1f5f9" stroke="#64748b"/>
   <text x="70" y="120" text-anchor="middle" font-size="13" font-weight="bold" fill="#1f2937">Usuário</text>
-  <text x="70" y="138" text-anchor="middle" font-size="10.5" fill="#475569">navegador / HTTP</text>
+  <text x="70" y="138" text-anchor="middle" font-size="10.5" fill="#475569">terminal (CLIs)</text>
   <rect x="215" y="20" width="220" height="92" rx="10" fill="#eef2ff" stroke="#4338ca" stroke-width="1.5"/>
   <text x="325" y="46" text-anchor="middle" font-size="14" font-weight="bold" fill="#312e81">Aplicação 2</text>
   <text x="325" y="66" text-anchor="middle" font-size="13" fill="#312e81">Serviço de Pedidos</text>
@@ -261,7 +261,8 @@ def montar_corpo(meta: dict, resumo: dict, evidencias: Path, capturas: dict[str,
 Foram construídas <strong>duas aplicações</strong> em Python que simulam o back-office de uma loja de informática:
 a <strong>Aplicação 1, Serviço de Estoque</strong>, que controla produtos e saldos, e a <strong>Aplicação 2,
 Serviço de Pedidos</strong>, que registra vendas e depende do estoque para reservar mercadorias. As aplicações
-rodam em processos separados e se comunicam por uma API REST (HTTP/JSON).</p>
+rodam em processos separados, se comunicam por uma API REST (HTTP/JSON) e são operadas pelo terminal,
+por meio de uma interface de linha de comando (CLI) em cada aplicação.</p>
 <p>O trabalho foi guiado por requisitos: cada requisito funcional, regra de negócio e requisito não funcional
 recebeu um identificador (Capítulo 3). Os testes foram projetados com técnicas de caixa-preta e caixa-branca
 (partição de equivalência, análise de valor limite, tabela de decisão, transição de estados, dublês de teste
@@ -276,14 +277,14 @@ a matriz de rastreabilidade do Capítulo 7.</p>
     doc.secao_nova("Atendimento ao enunciado da atividade")
     doc.html(f"""
 <table><thead><tr><th style="width:27%">Item solicitado</th><th>Como foi atendido</th><th style="width:15%">Onde</th></tr></thead><tbody>
-<tr><td>Duas aplicações em qualquer linguagem</td><td>Serviço de Estoque e Serviço de Pedidos, em Python 3 + Flask, executados como processos independentes que se comunicam por HTTP.</td><td>Cap. 2</td></tr>
+<tr><td>Duas aplicações em qualquer linguagem</td><td>Serviço de Estoque e Serviço de Pedidos, em Python 3 + Flask (somente back-end), executados como processos independentes que se comunicam por HTTP e operados pelo terminal por meio de interfaces de linha de comando (CLI).</td><td>Cap. 2</td></tr>
 <tr><td>Documentação sobre o que a aplicação faz</td><td>Arquitetura, funcionalidades, endpoints, regras de negócio, configuração e forma de execução de cada aplicação. Especificação de requisitos com {resumo['requisitos']['total']} itens identificados.</td><td>Cap. 2 e 3</td></tr>
 <tr><td>Documentação sobre o objetivo de cada teste</td><td>{casos_doc['funcoes']} funções de teste ({casos_doc['casos']} casos executados), cada uma com <em>objetivo</em>, <em>técnica</em>, <em>requisitos verificados</em> e resultado.</td><td>Cap. 4 e 5</td></tr>
 <tr><td>Testes unitários com cobertura de pelo menos 90%</td><td>{u['total']} testes unitários, com cobertura de <strong>{c['linhas']}% das linhas e {c['ramos']}% dos ramos</strong>. O comando usa <code>--cov-fail-under=90</code> e falha se a meta não for atingida.</td><td>Cap. 6.2</td></tr>
 <tr><td>Testes de integração entre as aplicações</td><td>{i['total']} testes que sobem as duas aplicações em processos separados e verificam fluxos completos, atomicidade, concorrência e falhas de rede (queda, timeout, porta fechada).</td><td>Cap. 6.3</td></tr>
 <tr><td>PDF com evidências</td><td>Este documento: saídas reais do pytest, relatórios de cobertura, capturas de tela e registro das chamadas HTTP.</td><td>Cap. 6</td></tr>
 <tr><td>Código-fonte em RAR/ZIP</td><td><code>codigo_fonte.zip</code> (aplicações, testes, documentação e scripts).</td><td>Apêndice B</td></tr>
-<tr><td>Vídeo da execução funcional</td><td><code>video_execucao.mp4</code>: as duas aplicações operando lado a lado, seguidas da execução dos testes.</td><td>Apêndice B</td></tr>
+<tr><td>Vídeo da execução funcional</td><td><code>video_execucao.mp4</code>: quatro terminais reais (dois servidores e duas CLIs) operando as aplicações, seguidos da execução dos testes.</td><td>Apêndice B</td></tr>
 </tbody></table>""")
 
     # 2-5. Documentos em Markdown -------------------------------------------------------
@@ -332,21 +333,23 @@ a matriz de rastreabilidade do Capítulo 7.</p>
         doc.figura_nova(capturas["08_relatorio_integracao"],
                         "Relatório pytest-html dos testes de integração (entrega/evidencias/relatorio-testes-integracao.html).")
 
-    doc.secao_nova("Execução funcional pela interface web")
-    doc.html("<p>Capturas feitas durante a gravação do vídeo. Na esquerda está o Serviço de Estoque e na direita "
-             "o Serviço de Pedidos, ambos em execução nas portas 5001 e 5002.</p>")
+    doc.secao_nova("Execução funcional pelo terminal (CLIs)")
+    doc.html("<p>Capturas feitas durante a gravação do vídeo, em quatro terminais reais: no alto, os servidores do "
+             "Estoque (Terminal 1, porta 5001) e de Pedidos (Terminal 2, porta 5002), cujos logs mostram cada chamada "
+             "HTTP recebida; embaixo, as interfaces de linha de comando usadas pelo usuário (Terminais 3 e 4).</p>")
     legendas = {
-        "01_produtos_cadastrados": "Três produtos cadastrados no Estoque. O catálogo aparece automaticamente no Pedidos.",
-        "02_pedido_5_por_cento_e_baixa": "Pedido de R$ 620,00 confirmado com 5% de desconto. O Estoque baixou 2 teclados e 1 mouse.",
-        "03_pedido_recusado_409": "Pedido de 5 monitores recusado (saldo 2): HTTP 409, sem baixa parcial.",
-        "04_pedido_10_por_cento_e_reposicao": "Pedido de R$ 1.200,00 com 10% de desconto. O monitor atingiu o mínimo e foi sinalizado para reposição.",
-        "05_cancelamento_devolve_estoque": "Pedido #1 cancelado: os itens voltaram ao Estoque (Teclado 10, Mouse 5).",
-        "06_estoque_fora_do_ar_503": "Com o Estoque desligado, o Pedidos indica a indisponibilidade e recusa o pedido com HTTP 503.",
+        "01_produtos_cadastrados": "Servidores nos Terminais 1 e 2. Três produtos cadastrados pela CLI do Estoque (Terminal 3); o log do Terminal 1 registra cada POST /api/produtos.",
+        "02_pedido_5_por_cento_e_baixa": "Pedido de R$ 620,00 criado na CLI de Pedidos (Terminal 4) com 5% de desconto. O Terminal 1 mostra a chamada POST /api/estoque/baixas feita pelo Pedidos e o Terminal 3 mostra o saldo baixado.",
+        "03_pedido_recusado_409": "Pedido de 5 monitores recusado (saldo 2): HTTP 409 no Estoque (Terminal 1) propagado ao Pedidos e exibido na CLI.",
+        "04_pedido_10_por_cento_e_reposicao": "Pedido de R$ 1.200,00 com 10% de desconto; na CLI do Estoque, a opção 4 mostra o monitor com situação REPOR.",
+        "05_cancelamento_devolve_estoque": "Pedido #1 cancelado na CLI de Pedidos: POST /api/estoque/devolucoes no Terminal 1 e saldos restaurados (Teclado 10, Mouse 5).",
+        "07_testes_unitarios_terminal": "Testes unitários executados no terminal durante o vídeo: cobertura de 100% (meta de 90%).",
+        "08_testes_integracao_terminal": "Testes de integração executados no terminal durante o vídeo.",
+        "06_estoque_fora_do_ar_503": "Servidor do Estoque encerrado com Ctrl+C (Terminal 1): o Pedidos continua no ar e recusa o pedido com HTTP 503.",
     }
-    for nome, legenda in legendas.items():
+    for nome, legenda in sorted(legendas.items()):
         if nome in capturas:
-            largura = "78%" if nome in ("03_pedido_recusado_409", "06_estoque_fora_do_ar_503") else "100%"
-            doc.figura_nova(capturas[nome], legenda, largura)
+            doc.figura_nova(capturas[nome], legenda)
 
     doc.secao_nova("Execução funcional pela API (requisições e respostas)")
     doc.html("<p>Roteiro executado com a biblioteca <code>requests</code> contra as duas aplicações em execução. "

@@ -16,6 +16,7 @@ Convenção: **RF** = requisito funcional, **RN** = regra de negócio, **RNF** =
 | RF-E04 | Baixar (reservar) itens em lote, informando nome e preço vigente de cada item. |
 | RF-E05 | Devolver itens ao estoque (estorno de pedido cancelado). |
 | RF-E06 | Listar os produtos que precisam de reposição. |
+| RF-E07 | Oferecer uma interface de linha de comando (menu no terminal) para cadastrar, listar, registrar entradas e consultar a reposição, exibindo os erros da API ao usuário. |
 
 ### Regras de negócio
 
@@ -39,6 +40,7 @@ Convenção: **RF** = requisito funcional, **RN** = regra de negócio, **RNF** =
 | RF-P03 | Listar os pedidos e consultar um pedido pelo número. |
 | RF-P04 | Cancelar pedido, devolvendo os itens ao Serviço de Estoque. |
 | RF-P05 | Informar a saúde do serviço e a disponibilidade do Serviço de Estoque. |
+| RF-P06 | Oferecer uma interface de linha de comando (menu no terminal) para ver o catálogo, criar, listar e cancelar pedidos e consultar a situação dos serviços. |
 
 ### Regras de negócio
 

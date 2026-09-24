@@ -7,6 +7,7 @@ Duas aplicações em **Python/Flask** que se comunicam por **HTTP/JSON**, com **
 | Pasta | [`estoque_service/`](estoque_service) | [`pedidos_service/`](pedidos_service) |
 | Função | Cadastro de produtos e controle de saldo (entradas, baixas atômicas, devoluções, alerta de reposição) | Vendas: valida o pedido, reserva os itens no Estoque, aplica desconto progressivo e permite cancelar |
 | Porta | 5001 | 5002 (chama o Estoque via `ESTOQUE_URL`) |
+| Interface | `python -m estoque_service.cli` | `python -m pedidos_service.cli` |
 
 ## Entrega
 
@@ -29,8 +30,8 @@ Duas aplicações em **Python/Flask** que se comunicam por **HTTP/JSON**, com **
 
 | Suíte | Casos | Resultado |
 |---|---|---|
-| Testes unitários (`tests/unit`) | 229 | 229 aprovados · **cobertura 100%** (535/535 linhas, 90/90 ramos) |
-| Testes de integração (`tests/integration`) | 19 | 19 aprovados (as duas aplicações em processos separados) |
+| Testes unitários (`tests/unit`) | 256 | 256 aprovados · **cobertura 100%** (723/723 linhas, 148/148 ramos) |
+| Testes de integração (`tests/integration`) | 21 | 21 aprovados (as duas aplicações em processos separados, inclusive via CLI) |
 
 ## Como executar
 
@@ -39,9 +40,13 @@ python -m venv .venv
 source .venv/bin/activate            # Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
 
-# Aplicações (dois terminais)
-python -m estoque_service            # http://127.0.0.1:5001
-python -m pedidos_service            # http://127.0.0.1:5002
+# Servidores (terminais 1 e 2)
+python -m estoque_service            # API em http://127.0.0.1:5001
+python -m pedidos_service            # API em http://127.0.0.1:5002
+
+# Interfaces de linha de comando (terminais 3 e 4)
+python -m estoque_service.cli
+python -m pedidos_service.cli
 
 # Testes unitários + cobertura (falha se < 90%)
 pytest tests/unit --cov --cov-report=term-missing --cov-report=html --cov-fail-under=90
@@ -54,7 +59,7 @@ pytest tests/integration -v
 
 ```bash
 pip install -r requirements-docs.txt
-playwright install chromium
+playwright install chromium        # o vídeo usa terminais bash reais (Linux/macOS/WSL)
 python scripts/gerar_entrega.py          # ou --sem-video para ser mais rápido
 ```
 
@@ -63,8 +68,8 @@ Nomes dos integrantes, disciplina e professor exibidos na capa do PDF ficam em [
 ## Estrutura
 
 ```
-estoque_service/        Aplicação 1 (app.py, servico.py, dominio.py, repositorio.py, templates/)
-pedidos_service/        Aplicação 2 (app.py, servico.py, dominio.py, repositorio.py, cliente_estoque.py, templates/)
+estoque_service/        Aplicação 1 (app.py, servico.py, dominio.py, repositorio.py, cli.py)
+pedidos_service/        Aplicação 2 (app.py, servico.py, dominio.py, repositorio.py, cliente_estoque.py, cli.py)
 tests/unit/estoque/     Testes unitários da Aplicação 1
 tests/unit/pedidos/     Testes unitários da Aplicação 2 (com dublês do Estoque em dubles.py)
 tests/integration/      Testes de integração (as duas aplicações como processos reais)

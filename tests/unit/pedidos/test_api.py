@@ -28,16 +28,7 @@ def cliente(estoque):
 PEDIDO = {"cliente": "Maria Souza", "itens": [{"sku": "TEC-001", "quantidade": 2}]}
 
 
-class TestPaginasESaude:
-    def test_pagina_inicial_retorna_html_da_interface(self, cliente):
-        """Objetivo: Verificar que a rota / entrega a interface web de pedidos.
-        Técnica: Teste de rota (caixa-preta)
-        Requisitos: RF-P02
-        """
-        resposta = cliente.get("/")
-        assert resposta.status_code == 200
-        assert "Serviço de Pedidos" in resposta.get_data(as_text=True)
-
+class TestSaude:
     @pytest.mark.parametrize("disponivel, situacao", [(True, "ok"), (False, "indisponivel")])
     def test_health_informa_situacao_da_dependencia_estoque(self, cliente, estoque, disponivel, situacao):
         """Objetivo: Verificar que o health check do serviço de pedidos informa se o estoque está disponível.

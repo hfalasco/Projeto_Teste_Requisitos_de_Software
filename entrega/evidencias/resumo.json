@@ -1,36 +1,36 @@
 {
-  "executado_em": "23/09/2026 às 12:52",
+  "executado_em": "24/09/2026 às 11:45",
   "ambiente": {
     "python": "3.11.15",
     "sistema": "Linux 6.18.44-fc-v37"
   },
   "unitarios": {
-    "total": 229,
-    "aprovados": 229,
+    "total": 256,
+    "aprovados": 256,
     "falhas": 0,
-    "tempo": 1.398
+    "tempo": 2.065
   },
   "integracao": {
-    "total": 19,
-    "aprovados": 19,
+    "total": 21,
+    "aprovados": 21,
     "falhas": 0,
-    "tempo": 2.777
+    "tempo": 4.266
   },
   "cobertura": {
     "total": "100",
     "linhas": "100",
-    "linhas_cobertas": 535,
-    "linhas_total": 535,
+    "linhas_cobertas": 723,
+    "linhas_total": 723,
     "ramos": "100",
-    "ramos_cobertos": 90,
-    "ramos_total": 90
+    "ramos_cobertos": 148,
+    "ramos_total": 148
   },
   "documentacao": {
-    "funcoes": 164,
-    "casos": 248
+    "funcoes": 188,
+    "casos": 277
   },
   "requisitos": {
-    "total": 28,
-    "cobertos": 28
+    "total": 30,
+    "cobertos": 30
   }
 }

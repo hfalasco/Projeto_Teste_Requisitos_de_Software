@@ -11,13 +11,13 @@ O projeto simula o back-office de uma pequena loja de informática e é composto
 | Responsabilidade | Cadastro de produtos e controle de saldo | Registro de vendas (pedidos) e cancelamentos |
 | Dados | Produtos (SKU, nome, preço, saldo, estoque mínimo) | Pedidos (cliente, itens, totais, status) |
 | Depende de | nada | Serviço de Estoque (via `ESTOQUE_URL`) |
-| Interface web | `http://127.0.0.1:5001/` | `http://127.0.0.1:5002/` |
+| Interface do usuário | CLI no terminal: `python -m estoque_service.cli` | CLI no terminal: `python -m pedidos_service.cli` |
 
 O Serviço de Pedidos **não tem acesso direto aos dados do estoque**: toda consulta de catálogo, reserva (baixa) e devolução de produtos é feita chamando a API REST do Serviço de Estoque. É essa comunicação que os testes de integração verificam.
 
 ```mermaid
 flowchart LR
-    U[Usuário / navegador] -->|HTTP| P[Aplicação 2<br/>Serviço de Pedidos<br/>:5002]
+    U[Usuário no terminal<br/>CLIs] -->|HTTP| P[Aplicação 2<br/>Serviço de Pedidos<br/>:5002]
     U -->|HTTP| E[Aplicação 1<br/>Serviço de Estoque<br/>:5001]
     P -->|GET /api/produtos<br/>POST /api/estoque/baixas<br/>POST /api/estoque/devolucoes| E
 ```
@@ -33,6 +33,7 @@ Cada aplicação segue uma arquitetura em camadas, o que permite testar cada par
 | Domínio | `dominio.py` | `dominio.py` | Entidades, validações e regras de negócio puras |
 | Repositório | `repositorio.py` | `repositorio.py` | Armazenamento em memória (substituível por banco de dados) |
 | Integração | n/a | `cliente_estoque.py` | Cliente HTTP do estoque: traduz respostas e falhas de rede em exceções |
+| Interface (CLI) | `cli.py` | `cli.py` | Menu interativo no terminal que consome a API REST da própria aplicação |
 
 As dependências são **injetadas pelo construtor** (`criar_app(servico)`, `ServicoPedidos(cliente_estoque, repositorio, relogio)`). Nos testes unitários elas são trocadas por dublês de teste. Nos testes de integração são usadas as implementações reais.
 
@@ -55,7 +56,6 @@ Mantém o catálogo de produtos da loja e o saldo de cada um. Permite:
 
 | Método | Rota | Descrição | Respostas |
 |---|---|---|---|
-| GET | `/` | Interface web do estoque | 200 |
 | GET | `/health` | Verificação de saúde | 200 |
 | GET | `/api/produtos` | Lista produtos (ordenados por SKU) | 200 |
 | POST | `/api/produtos` | Cadastra produto | 201, 400, 409 |
@@ -117,7 +117,6 @@ Também permite **cancelar** um pedido confirmado, o que devolve os itens ao est
 
 | Método | Rota | Descrição | Respostas |
 |---|---|---|---|
-| GET | `/` | Interface web de pedidos | 200 |
 | GET | `/health` | Saúde do serviço e da dependência (estoque) | 200 |
 | GET | `/api/catalogo` | Catálogo vindo do Serviço de Estoque | 200, 502, 503 |
 | GET | `/api/pedidos` | Lista pedidos (mais recente primeiro) | 200 |
@@ -164,14 +163,52 @@ python -m estoque_service          # http://127.0.0.1:5001
 python -m pedidos_service          # http://127.0.0.1:5002
 ```
 
-Abra `http://127.0.0.1:5001` (Estoque) e `http://127.0.0.1:5002` (Pedidos) no navegador.
+Com os dois servidores no ar, abra mais dois terminais e use as interfaces de linha de comando:
+
+```bash
+# Terminal 3: CLI do Estoque (cadastrar, listar, registrar entrada, reposição)
+python -m estoque_service.cli
+
+# Terminal 4: CLI de Pedidos (catálogo, criar, listar, cancelar, situação dos serviços)
+python -m pedidos_service.cli
+```
+
+Exemplo de uso da CLI de Pedidos:
+
+```text
+==================================================
+  SERVIÇO DE PEDIDOS  (http://127.0.0.1:5002)
+==================================================
+  1) Ver catálogo (produtos do Estoque)
+  2) Criar pedido
+  3) Listar pedidos
+  4) Cancelar pedido
+  5) Situação dos serviços
+  0) Sair
+Opção: 2
+
+Cliente: Maria Souza
+Informe os itens (SKU em branco para finalizar).
+  SKU: TEC-001
+  Quantidade: 2
+  SKU: MOU-001
+  Quantidade: 1
+  SKU:
+OK: pedido confirmado!
+Pedido #1 - Maria Souza - CONFIRMADO
+   TEC-001    Teclado mecânico           2 x    R$ 250,00 =     R$ 500,00
+   MOU-001    Mouse sem fio              1 x    R$ 120,00 =     R$ 120,00
+   Subtotal R$ 620,00 | Desconto 5% (-R$ 31,00) | TOTAL R$ 589,00
+```
+
+As CLIs também aceitam as variáveis `ESTOQUE_URL` e `PEDIDOS_URL` para apontar para outro endereço. Erros da API aparecem com o código HTTP e a mensagem, por exemplo `ERRO (HTTP 409): Estoque insuficiente para 'MON-001': disponível 2, solicitado 5.`
 
 ## Tecnologias
 
-* **Python 3.11** e **Flask 3** (APIs REST e páginas web)
+* **Python 3.11** e **Flask 3** (APIs REST); interface de linha de comando com a biblioteca padrão (`input`/`print`)
 * **requests** (cliente HTTP entre as aplicações)
 * **pytest**, **pytest-cov** (coverage.py com cobertura de ramos) e **pytest-html** (testes e relatórios)
-* **Playwright** (somente para gerar capturas de tela, o vídeo e o PDF de evidências)
+* **Playwright** e **xterm.js** (somente para gravar o vídeo dos terminais e gerar o PDF de evidências)
 
 ## Limitações conhecidas
 

@@ -127,9 +127,9 @@ def main() -> None:
     }
     (EVIDENCIAS / "resumo.json").write_text(json.dumps(resumo, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    etapa("4/6 Demonstração funcional (API, interface web e vídeo)")
+    etapa("4/6 Demonstração funcional (API, terminais e vídeo)")
     interacoes = demonstracao.demonstrar_api(EVIDENCIAS / "demonstracao_api.txt")
-    capturas = demonstracao.demonstrar_interface(EVIDENCIAS, gravar_video=not args.sem_video,
+    capturas = demonstracao.demonstrar_terminal(EVIDENCIAS, gravar_video=not args.sem_video,
                                                  destino_video=ENTREGA / "video_execucao.mp4")
     capturas["07_relatorio_cobertura"] = demonstracao.capturar_pagina(
         (EVIDENCIAS / "cobertura_html" / "index.html").as_uri(), EVIDENCIAS / "capturas" / "07_relatorio_cobertura.png",

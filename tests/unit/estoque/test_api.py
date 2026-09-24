@@ -22,16 +22,7 @@ def cliente():
     return cliente
 
 
-class TestPaginasESaude:
-    def test_pagina_inicial_retorna_html_da_interface(self, cliente):
-        """Objetivo: Verificar que a rota / entrega a interface web do estoque.
-        Técnica: Teste de rota (caixa-preta)
-        Requisitos: RF-E02
-        """
-        resposta = cliente.get("/")
-        assert resposta.status_code == 200
-        assert "Serviço de Estoque" in resposta.get_data(as_text=True)
-
+class TestSaude:
     def test_health_informa_servico_ativo(self, cliente):
         """Objetivo: Verificar que o endpoint de saúde responde 200 com status ok.
         Técnica: Teste de rota (caixa-preta)

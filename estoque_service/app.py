@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, request
 
 from estoque_service.dominio import (
     DadosInvalidos,
@@ -52,10 +52,6 @@ def criar_app(servico: ServicoEstoque | None = None) -> Flask:
     @app.errorhandler(405)
     def metodo_nao_permitido(_erro):
         return jsonify({"erro": "Método não permitido.", "codigo": "METODO_NAO_PERMITIDO"}), 405
-
-    @app.get("/")
-    def pagina_inicial():
-        return render_template("index.html")
 
     @app.get("/health")
     def saude():
